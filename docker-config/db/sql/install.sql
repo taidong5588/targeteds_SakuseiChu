@@ -1,0 +1,3 @@
+-- 初期データ投入用
+-- USE laravel;
+-- INSERT INTO users (name, email) VALUES ('Taro','taro@example.com');

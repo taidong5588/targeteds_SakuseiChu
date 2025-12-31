@@ -1,0 +1,83 @@
+
+1. 修正版 docker-compose.yml
+
+mailpit を php と db の間に正しく配置しました。
+
+YAML
+services:
+  nginx:
+    # ... (中略)
+
+  php:
+    # ... (中略)
+
+  # ここに正しく配置します
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    container_name: ${COMPOSE_PROJECT_NAME}-mailpit
+    ports:
+      - "1025:1025" # SMTP（メール送信）用
+      - "8025:8025" # Web管理画面用
+    networks:
+      - app-network
+
+  db:
+    # ... (中略)
+2. インストール実行手順
+
+以下の順番でコマンドを叩けば、Filamentが動く環境が出来上がります。
+
+① コンテナの起動
+
+Bash
+docker-compose up -d
+② Laravel本体のインストール
+
+まだ src フォルダに何も入っていない場合、PHPコンテナに入ってインストールします。
+
+Bash
+# PHPコンテナに入る
+docker-compose exec php bash
+
+# コンテナ内でLaravelをインストール（カレントディレクトリに展開）
+composer create-project laravel/laravel .
+③ Filamentとデータベースの設定
+
+コンテナに入ったまま（/var/www/src にいる状態で）以下を実行します。
+
+Bash
+# 1. Filamentをインストール
+composer require filament/filament:"^3.2" -W
+
+# 2. パネル（管理画面の土台）を作成
+php artisan filament:install --panels
+
+# 3. データベースの接続確認（マイグレーション）
+# ※ .env の DB_HOST=db になっているか事前に確認してください
+php artisan migrate
+
+# 4. ログインユーザーを作成
+php artisan make:filament-user
+3. 標的型訓練システムの「設計図」
+
+環境ができたら、次に作るべき 3つの主要機能 はこちらです。
+
+機能	Filamentでの実装方法	役割
+対象者管理	Resource を作成	社員名、メールアドレスの登録・CSVインポート
+メール作成	Resource を作成	偽装メールの件名や本文、URLを保存
+ログ分析	Widgets を使用	誰がいつクリックしたかをグラフで表示
+4. 訓練メールを飛ばす準備（Mailpitの確認）
+
+src/.env を以下のように書き換えます。
+
+MAIL_HOST=mailpit
+
+MAIL_PORT=1025
+
+ブラウザで http://localhost:8025 を開きます。
+
+Laravelから送信されたメールがここに届くようになります。（本物のメールアドレスに飛ばないので安全です！）
+
+次のステップ：
+
+無事にコンテナは起動しましたか？ 次は、**「社員名簿（Targets）を登録する画面」をFilamentで作る手順を解説しましょうか。それとも、「メール送信の仕組み」**を先に知りたいですか？
