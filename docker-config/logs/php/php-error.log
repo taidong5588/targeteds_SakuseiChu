@@ -2292,3 +2292,35 @@ Stack trace:
 [31-Dec-2025 14:34:27 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
 [31-Dec-2025 14:34:27 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
 [31-Dec-2025 14:34:27 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:39:24 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:39:24 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:39:24 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:40:23 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:40:23 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:40:23 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:40:23 Asia/Tokyo] PHP Warning:  require(/var/www/src/vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/src/artisan on line 10
+[01-Jan-2026 11:40:23 Asia/Tokyo] PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/src/vendor/autoload.php' (include_path='.:/usr/local/lib/php') in /var/www/src/artisan:10
+Stack trace:
+#0 {main}
+  thrown in /var/www/src/artisan on line 10
+[01-Jan-2026 11:41:16 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:41:16 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:41:16 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:30 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:30 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:30 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:42:31 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:43:32 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:43:32 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:43:32 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[01-Jan-2026 11:56:55 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[01-Jan-2026 11:56:55 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[01-Jan-2026 11:56:55 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0

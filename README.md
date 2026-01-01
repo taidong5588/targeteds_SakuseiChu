@@ -140,3 +140,16 @@ rm -rf ./.*
 
 # Git を完全に削除
 rm -rf .git
+
+# 🧹 0. 作業ディレクトリ初期化
+rm -rf ./*
+rm -rf ./.*
+
+# Git を完全に削除
+rm -rf .git
+
+# ④ 再実行（ローカル）
+php artisan migrate:fresh --seed
+
+# Seeder 実行
+php artisan db:seed

@@ -162,3 +162,19 @@
 2025/12/31 05:22:19 [notice] 1#1: start worker process 36
 2025/12/31 05:22:19 [notice] 1#1: start worker process 37
 2025/12/31 05:22:19 [notice] 1#1: start worker process 38
+2026/01/01 02:39:24 [notice] 1#1: using the "epoll" event method
+2026/01/01 02:39:24 [notice] 1#1: nginx/1.28.1
+2026/01/01 02:39:24 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+2026/01/01 02:39:24 [notice] 1#1: OS: Linux 6.12.54-linuxkit
+2026/01/01 02:39:24 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2026/01/01 02:39:24 [notice] 1#1: start worker processes
+2026/01/01 02:39:24 [notice] 1#1: start worker process 29
+2026/01/01 02:39:24 [notice] 1#1: start worker process 30
+2026/01/01 02:39:24 [notice] 1#1: start worker process 31
+2026/01/01 02:39:24 [notice] 1#1: start worker process 32
+2026/01/01 02:39:24 [notice] 1#1: start worker process 33
+2026/01/01 02:39:24 [notice] 1#1: start worker process 34
+2026/01/01 02:39:24 [notice] 1#1: start worker process 35
+2026/01/01 02:39:24 [notice] 1#1: start worker process 36
+2026/01/01 02:39:24 [notice] 1#1: start worker process 37
+2026/01/01 02:39:24 [notice] 1#1: start worker process 38
