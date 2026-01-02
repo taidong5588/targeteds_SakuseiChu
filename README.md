@@ -141,15 +141,22 @@ rm -rf ./.*
 # Git を完全に削除
 rm -rf .git
 
-# 🧹 0. 作業ディレクトリ初期化
-rm -rf ./*
-rm -rf ./.*
-
-# Git を完全に削除
-rm -rf .git
-
 # ④ 再実行（ローカル）
 php artisan migrate:fresh --seed
 
 # Seeder 実行
 php artisan db:seed
+
+php artisan tinker
+$user = App\Models\AdminUser::where('email', 'admin@gmail.com')->first();
+
+# 🔒 本番では必須
+# QUEUE_CONNECTION=redis（or database）
+# Supervisor / systemd / Horizon で worker 常駐
+# deploy 時に 必ず
+
+php artisan queue:failed
+# または
+php artisan optimize:clear
+php artisan queue:restart
+php artisan queue:work

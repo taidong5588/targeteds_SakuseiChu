@@ -27,6 +27,15 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset()
+            ->authGuard('admin')
+            ->bootUsing(function () {
+                // config([
+                //     'auth.defaults.guard' => 'admin',
+                //     'auth.defaults.passwords' => 'admin_users',
+                // ]); 
+                config()->set('auth.defaults.passwords', 'admin_users');
+            })
             ->colors([
                 'primary' => Color::Amber,
             ])
