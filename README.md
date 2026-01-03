@@ -78,7 +78,7 @@ npm run build
 
 php artisan storage:link
 
-キャッシュをクリア
+# キャッシュをクリア
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
