@@ -126,6 +126,15 @@ class AdminAuditObserver
             return;
         }
 
+        // --- 👈 role_id または roles の変更を除外 ---
+        // 権限(role_id)の変更が含まれている場合、Trait側(role_changed)で記録するため
+        // ここでの通常の 'updated' 記録はスキップする
+        if (array_key_exists('role_id', $changes) || array_key_exists('roles', $changes)) {
+            return;
+        }
+        // --------------------
+
+
         // before には変更されたカラムの「元の値」のみを入れる
         $before = collect($model->getOriginal())
             ->only(array_keys($changes))
