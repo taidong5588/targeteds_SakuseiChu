@@ -17,6 +17,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Http\Middleware\SetFilamentLocale; // 追加
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -35,6 +37,9 @@ class AdminPanelProvider extends PanelProvider
                 //     'auth.defaults.passwords' => 'admin_users',
                 // ]); 
                 config()->set('auth.defaults.passwords', 'admin_users');
+            })
+            ->bootUsing(function () {
+                //
             })
             ->colors([
                 'primary' => Color::Amber,
@@ -59,6 +64,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                SetFilamentLocale::class, // 追加
             ])
             ->authMiddleware([
                 Authenticate::class,

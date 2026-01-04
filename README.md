@@ -160,3 +160,6 @@ php artisan queue:failed
 php artisan optimize:clear
 php artisan queue:restart
 php artisan queue:work
+
+% Filament ログイン画面（言語切替 UI）　📄 publish
+php artisan vendor:publish --tag=filament-panels-views
