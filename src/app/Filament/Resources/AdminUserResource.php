@@ -69,29 +69,25 @@ class AdminUserResource extends Resource
                             ])
                             // ->default('ja')
                             ->required()
-                            ->selectablePlaceholder(false) // 空選択を防止
-                            // ->live() // リアルタイム更新を有効化
-                            // ->afterStateUpdated(function ($state) {
+                            // ->selectablePlaceholder(false) // 空選択を防止
+                            ->afterStateUpdated(function ($state, $record) {
+                                // 現在編集中の対象が「自分自身」であるか判定
+                                // $record が null（新規作成時）の場合は auth()->id() と比較
+                                $targetId = $record ? $record->id : null;
 
-                            //     // 1. DB保存（ログインユーザーの場合）
-                            //     if (auth('admin')->check()) {
-                            //         auth('admin')->user()->update(['locale' => $state]);
-                            //     }
+                                if ($targetId === auth('admin')->id()) {
+                                    // セッションに保存して、即座に反映させる
+                                    session()->put('admin_locale', $state);
+                                    session()->save();
 
-                            //     // 2. セッション保存（未ログイン時のフォールバック用 & 即時反映用）
-                            //     session()->put('admin_locale', $state);
-                            //     session()->save();
+                                    // 自分の表示を即座に変えるためにリロード
+                                    // (これをしないと、保存ボタンを押すまでサイドバーなどが古い言語のまま)
+                                    // return redirect(request()->header('Referer')); 
+                                    // ↑ live() を使っていないなら、保存後のリダイレクトに任せてもOK
 
-                            //     // ③ アプリケーションロケール更新
-                            //     app()->setLocale($state);
-
-                            //     // 3. 画面リロード
-                            //     // リロードすることで、さきほど作ったミドルウェアが新しい設定(DB/Session)を読み込み、
-                            //     // 画面全体を新しい言語で再描画します。
-                            //     return redirect(request()->header('Referer'));
-
-                            // })
-                    ])->columns(1),
+                                }
+                            })
+                    ])->columns(2),
             ]);
     }
 
