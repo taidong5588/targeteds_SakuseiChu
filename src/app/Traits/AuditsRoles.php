@@ -7,8 +7,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
 /**
- * 🛡️ AdminUser の権限（ロール）変更を監査ログに記録するトレイト
- * - AdminUser モデルに適用することで、role カラムの変更を特定のアクションとして記録
+ * 🛡️ AdminUser の権限（role）変更を監査ログに記録するトレイト
+ *
+ * 【目的】
+ * - 管理者権限の変更は「最重要操作」のため
+ * - 通常の updated ログとは別に、意味のある action として記録する
+ *
+ * 【前提】
+ * - admin_users.role（string）を使用
+ * - Filament 管理画面からの更新を想定
  */
 trait AuditsRoles
 {
