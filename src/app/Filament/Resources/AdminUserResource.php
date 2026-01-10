@@ -3,90 +3,104 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AdminUserResource\Pages;
-use App\Filament\Resources\AdminUserResource\RelationManagers;
 use App\Models\AdminUser;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\App;
-use Filament\Notifications\Notification;
+use App\Models\Role;
 
 class AdminUserResource extends Resource
 {
     protected static ?string $model = AdminUser::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Admin Users';
-    protected static ?string $pluralModelLabel = 'Admin Users';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    // ナビゲーションラベルの多言語化
+    public static function getNavigationLabel(): string
+    {
+        return __('Admin Users');
+    }
+
+    // ナビゲーショングループの多言語化
+    public static function getNavigationGroup(): ?string
+    {
+        return __('System Management');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Profile')
+                Forms\Components\Section::make(__('Profile'))
                     ->schema([
+                        // 🏢 テナントマスタ紐付け
+                        Forms\Components\Select::make('tenant_id')
+                            ->label(__('Company Name'))
+                            ->relationship('tenant', 'name')
+                            ->searchable()
+                            ->preload()
+                            // 💡 ロジック修正：
+                            // 1. Super Admin ではないこと
+                            // 2. かつ、Viewer（閲覧者）でもないこと 
+                            // この2つの場合に「必須」にする
+                            ->required(fn (Forms\Get $get) => 
+                                $get('role_id') && 
+                                !in_array(Role::find($get('role_id'))?->code, ['super_admin', 'viewer'])
+                            )
+                            // 💡 Super Admin の場合は非表示
+                            ->hidden(fn (Forms\Get $get) => 
+                                $get('role_id') && Role::find($get('role_id'))?->code === 'super_admin'
+                            )
+                            // 💡 閲覧者の場合は、項目は見せるが「編集不可」にする（またはお好みでhiddenでもOK）
+                            ->disabled(fn (Forms\Get $get) => 
+                                $get('role_id') && Role::find($get('role_id'))?->code === 'viewer'
+                            ),
 
                         Forms\Components\TextInput::make('name')
-                            ->label('Name')
+                            ->label(__('Name'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('email')
-                            ->label('Email')
+                            ->label(__('Email'))
                             ->email()
                             ->required()
                             ->unique(ignoreRecord: true),
 
                         Forms\Components\TextInput::make('password')
-                            ->label('Password')
+                            ->label(__('Password'))
                             ->password()
                             ->required(fn (string $context) => $context === 'create')
                             ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
                             ->dehydrated(fn ($state) => filled($state)),
 
-                        Forms\Components\Select::make('role')
-                            ->label('Role')
-                            ->options([
-                                'super_admin' => 'Super Admin',
-                                'admin'       => 'Admin',
-                                'operator'    => 'Operator',
-                                'viewer'      => 'Viewer',
-                            ])
-                            ->required(),
-
-                        // 🌍 言語切替
-                        Forms\Components\Select::make('locale')
-                            ->label('Language')
-                            ->options([
-                                'ja'    => '日本語',
-                                'en'    => 'English',
-                                'ko'    => '한국어',
-                                'zh_CN' => '简体中文',
-                            ])
-                            // ->default('ja')
+                        // 🔑 ロールマスタ紐付け
+                        Forms\Components\Select::make('role_id')
+                            ->label(__('Role'))
+                            ->relationship('role', 'name')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => __($record->name)) // DB内の値を翻訳
                             ->required()
-                            // ->selectablePlaceholder(false) // 空選択を防止
+                            ->preload(),
+
+                        // 🌍 言語マスタ紐付け（ロケール切替ロジック維持）
+                        Forms\Components\Select::make('language_id')
+                            ->label(__('Language'))
+                            ->relationship('language', 'name')
+                            ->required()
+                            ->preload()
+                            ->live() // 即時反映を有効化
                             ->afterStateUpdated(function ($state, $record) {
-                                // 現在編集中の対象が「自分自身」であるか判定
-                                // $record が null（新規作成時）の場合は auth()->id() と比較
-                                $targetId = $record ? $record->id : null;
-
-                                if ($targetId === auth('admin')->id()) {
-                                    // セッションに保存して、即座に反映させる
-                                    session()->put('admin_locale', $state);
-                                    session()->save();
-
-                                    // 自分の表示を即座に変えるためにリロード
-                                    // (これをしないと、保存ボタンを押すまでサイドバーなどが古い言語のまま)
-                                    // return redirect(request()->header('Referer')); 
-                                    // ↑ live() を使っていないなら、保存後のリダイレクトに任せてもOK
-
+                                // 自分のプロフィールを編集している場合のみセッション更新
+                                if ($record && $record->id === auth('admin')->id()) {
+                                    $lang = \App\Models\Language::find($state);
+                                    if ($lang) {
+                                        session()->put('admin_locale', $lang->code);
+                                        session()->save();
+                                    }
                                 }
-                            })
+                            }),
                     ])->columns(2),
             ]);
     }
@@ -95,49 +109,46 @@ class AdminUserResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('tenant.name')
+                    ->label(__('Company Name'))
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('Name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('Email'))
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('role')
-                    ->label('Role')
+                Tables\Columns\TextColumn::make('role.name')
+                    ->label(__('Role'))
+                    ->formatStateUsing(fn ($state) => __($state))
                     ->badge()
-                    ->colors([
-                        'danger'  => 'super_admin',
-                        'primary' => 'admin',
-                        'warning' => 'operator',
-                        'gray'    => 'viewer',
-                    ])
+                    ->color(fn ($state) => match ($state) {
+                        'Super Admin' => 'danger',
+                        'Tenant Admin' => 'primary',
+                        default => 'gray',
+                    })
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('locale')
-                    ->label('Language')
-                    ->formatStateUsing(fn ($state) => match ($state) {
-                        'ja' => '日本語',
-                        'en' => 'English',
-                        'ko' => '한국어',
-                        'zh_CN' => '简体中文',
-                        default => $state,
-                    })
+                Tables\Columns\TextColumn::make('language.name')
+                    ->label(__('Language'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('Registration Date'))
                     ->dateTime('Y-m-d H:i')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime('Y-m-d H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('tenant_id')
+                    ->label(__('Company Name'))
+                    ->relationship('tenant', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -147,13 +158,6 @@ class AdminUserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

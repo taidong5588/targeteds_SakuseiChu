@@ -19,8 +19,11 @@ class AdminUser extends Authenticatable implements CanResetPassword
         'name',
         'email',
         'password',
-        'role',
+        // 'role',
         'locale',
+        'tenant_id', // 追加
+        'role_id',   // 追加
+        'language_id', // 追加
     ];
 
     protected $hidden = [
@@ -32,5 +35,9 @@ class AdminUser extends Authenticatable implements CanResetPassword
     {
         return true;
     }
+
+    public function tenant() { return $this->belongsTo(Tenant::class); }
+    public function role() { return $this->belongsTo(Role::class); }
+    public function language() { return $this->belongsTo(Language::class); }
 
 }

@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Language;
+use App\Models\Plan;
+use App\Models\Tenant;
+use App\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,17 +16,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->withPersonalTeam()->create();
+        // 1. 言語マスタの作成 (最優先)
+        $ja = Language::updateOrCreate(
+            ['code' => 'ja'],
+            ['name' => '日本語', 'is_active' => true]
+        );
+        
+        Language::updateOrCreate(
+            ['code' => 'en'],
+            ['name' => 'English', 'is_active' => true]
+        );
 
-        User::factory()->withPersonalTeam()->create([
+        Language::updateOrCreate(
+            ['code' => 'ko'],
+            ['name' => '한국어', 'is_active' => true]
+        );
+
+         Language::updateOrCreate(
+            ['code' => 'zh_CN'],
+            ['name' => '简体中文', 'is_active' => true]
+        );       
+
+        // 3. テナントとユーザーの作成 (callは一度だけに整理)
+        $this->call([
+            
+            PlanSeeder::class,                
+            RoleSeeder::class,
+            TenantSeeder::class,   
+            AdminUserSeeder::class,
+
+        ]);
+
+        // 4. (必要であれば) 一般ユーザーの作成
+        User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@gmail.com',
         ]);
-
-        $this->call([
-            AdminUserSeeder::class,
-            TenantSeeder::class,
-        ]);
-
     }
 }

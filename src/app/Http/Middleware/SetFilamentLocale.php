@@ -6,30 +6,29 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\App;
+use App\Models\Language; // 🚀 追加
+use Illuminate\Support\Facades\Cache; // 🚀 パフォーマンス向上のため追加を推奨
 
 class SetFilamentLocale
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        $valid = config('app.supported_locales');
+        // 1. DBから有効な言語コード一覧を取得
+        // ※ リクエストのたびにDBにアクセスするのは重いため、キャッシュ化するのが一般的です
+        $valid = Cache::rememberForever('active_language_codes', function () {
+            return Language::where('is_active', true)->pluck('code')->toArray();
+        });
         
-        // デフォルトを決定するロジック（ここが重要）
-        // 優先度 3: 設定ファイルのデフォルト
-        $locale = config('app.locale'); 
+        // 2. デフォルト設定
+        $locale = config('app.locale', 'ja'); 
 
-        // 優先度 2: ブラウザの言語設定を自動検知（ログイン画面用）
-        // ブラウザが 'ja' を求めていて、かつ 'ja' が許可リストにある場合、それを採用
+        // 3. ブラウザの言語設定を検知（未ログイン時用）
         $browserLocale = $request->getPreferredLanguage($valid);
         if ($browserLocale) {
             $locale = $browserLocale;
         }
 
-        // 優先度 1: セッション（手動切り替え後）
+        // 4. セッション（手動で切り替えた場合）
         if (session()->has('admin_locale')) {
             $sessionLocale = session('admin_locale');
             if (in_array($sessionLocale, $valid, true)) {
@@ -37,15 +36,15 @@ class SetFilamentLocale
             }
         }
 
-        // 優先度 0 (最高): ログインユーザーのDB設定
+        // 5. ログインユーザーのDB設定（リレーション経由）
         if (auth('admin')->check()) {
             $user = auth('admin')->user();
-            if ($user->locale && in_array($user->locale, $valid, true)) {
-                $locale = $user->locale;
+            // languageリレーションを通じてDBに保存されている言語コードを取得
+            if ($user->language && in_array($user->language->code, $valid, true)) {
+                $locale = $user->language->code;
             }
         }
 
-        // 決定した言語を適用
         App::setLocale($locale);
 
         return $next($request);
