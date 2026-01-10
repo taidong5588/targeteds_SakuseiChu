@@ -67,4 +67,26 @@ class Tenant extends Model
     {
         return $this->hasOne(TenantPlan::class);
     }    
+
+    protected static function booted()
+    {
+        static::saving(function ($tenant) {
+            $today = now()->startOfDay();
+
+            // 🚫 Trial 期限切れの判定
+            $isTrialExpired = $tenant->trial_ends_at && $tenant->trial_ends_at->isPast();
+            
+            // 🚫 本契約終了の判定（リレーションがある場合）
+            $isContractExpired = false;
+            if ($tenant->tenantPlan && $tenant->tenantPlan->contract_end_at) {
+                $isContractExpired = $tenant->tenantPlan->contract_end_at->isPast();
+            }
+
+            if ($isTrialExpired || $isContractExpired) {
+                $tenant->is_active = false;
+            }
+        });
+    }
+
+
 }

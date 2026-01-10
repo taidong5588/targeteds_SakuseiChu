@@ -14,6 +14,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Support\FormAlert;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\Filter;
 
 class TenantResource extends Resource
 {
@@ -289,7 +292,6 @@ class TenantResource extends Resource
     {
         return $table
             ->columns([
-                
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('Company Name'))
                     ->weight('bold')
@@ -306,25 +308,174 @@ class TenantResource extends Resource
                     ->boolean()
                     ->sortable(),
 
+                /* ===== Trial Status ===== */
+                Tables\Columns\TextColumn::make('trial_status')
+                    ->label(__('Trial'))
+                    ->badge()
+                    ->state(function ($record) {
+                        if (! $record->trial_ends_at) return __('No Trial');
+
+                        $days = now()->startOfDay()
+                            ->diffInDays($record->trial_ends_at->startOfDay(), false);
+
+                        if ($days < 0) return __('Expired');
+                        if ($days === 0) return __('Ends Today');
+
+                        return __('あと :d 日', ['d' => $days]);
+                    })
+                    ->color(function ($record) {
+                        if (! $record->trial_ends_at) return 'gray';
+
+                        $days = now()->startOfDay()
+                            ->diffInDays($record->trial_ends_at->startOfDay(), false);
+
+                        if ($days < 0) return 'gray';
+                        if ($days <= 3) return 'danger';
+                        if ($days <= 7) return 'warning';
+
+                        return 'success';
+                    }),
+
                 Tables\Columns\TextColumn::make('trial_ends_at')
                     ->label(__('Trial End'))
                     ->dateTime('Y/m/d')
                     ->color(fn ($record) => $record->trial_ends_at?->isPast() ? 'danger' : 'gray')
                     ->toggleable(),
-
                 Tables\Columns\TextColumn::make('tenantPlan.contract_end_at')
-                    ->label(__('Contract Expiry'))
-                    ->date('Y/m/d')
-                    ->description(fn ($record) => $record->tenantPlan?->contract_start_at ? $record->tenantPlan->contract_start_at->format('Y/m/d') . ' ~' : '')
-                    ->color(fn ($record) => $record->tenantPlan?->contract_end_at?->isPast() ? 'danger' : 'success')
-                    ->sortable(),
+                    ->label(__('Contract End'))
+                    ->date('Y/m/d'),
             ])
-            ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')->label(__('Active Status')),
-                Tables\Filters\SelectFilter::make('plan_id')
+
+            /* ===============================
+            | 🔥 行スタイル制御
+            =============================== */
+            ->recordClasses(function ($record) {
+
+                $today = now()->startOfDay();
+
+                $trialEnd      = $record->trial_ends_at?->startOfDay();
+                $contractStart = $record->tenantPlan?->contract_start_at;
+                $contractEnd   = $record->tenantPlan?->contract_end_at?->startOfDay();
+
+                /**
+                 * ⚪ グレー条件（質問内容そのまま）
+                 * (trial_ends_at < 0 and contract_start_at)
+                 * OR (contract_end_at < 0)
+                 * OR (trial_ends_at is null and contract_start_at)
+                 * OR (contract_end_at is null)
+                 */
+                if (
+                    ($trialEnd && $trialEnd->lt($today) && $contractStart) ||
+                    ($contractEnd && $contractEnd->lt($today)) ||
+                    (is_null($trialEnd) && $contractStart) ||
+                    is_null($contractEnd)
+                ) {
+                    return ['bg-gray-100', 'opacity-50'];
+                }
+
+                // 🔥 Trial 残り3日以内 → 赤く点滅
+                if ($trialEnd) {
+                    $days = $today->diffInDays($trialEnd, false);
+
+                    if ($days >= 0 && $days <= 3) {
+                        return [
+                            'bg-danger-500/20',
+                            'animate-pulse',
+                            'border-l-4',
+                            'border-danger-600',
+                        ];
+                    }
+                }
+
+                return [];
+            })
+            
+            ->filters([ 
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label(__('Active Status')), 
+                Tables\Filters\SelectFilter::make('plan_id') 
+                    ->label(__('Subscription Plan')) 
+                    ->relationship('tenantPlan.plan', 'name'), 
+
+
+                /* =====================================================
+                | 契約状態フィルタ（ステータス）
+                ===================================================== */
+                SelectFilter::make('contract_status')
+                    ->label(__('Contract Status'))
+                    ->options([
+                        'active'        => __('🟢 Active'),
+                        'attention'     => __('🔥 Trial Ending Soon'),
+                        'trial_expired' => __('⛔ Trial Expired'),
+                        'inactive'      => __('⚪ Inactive'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $today = now()->startOfDay();
+
+                        return match ($data['value'] ?? null) {
+                            'active' =>
+                                $query->whereHas('tenantPlan', fn ($q) =>
+                                    $q->whereDate('contract_end_at', '>=', $today)
+                                ),
+
+                            'attention' =>
+                                $query->whereBetween('trial_ends_at', [
+                                    $today,
+                                    $today->copy()->addDays(3),
+                                ]),
+
+                            'trial_expired' =>
+                                $query->whereDate('trial_ends_at', '<', $today),
+
+                            'inactive' =>
+                                $query->where(function ($q) {
+                                    $q->whereNull('trial_ends_at')
+                                    ->orWhereHas('tenantPlan', fn ($qq) =>
+                                        $qq->whereNull('contract_end_at')
+                                    );
+                                }),
+
+                            default => $query,
+                        };
+                    }),
+
+                /* =====================================================
+                | Trial 残り日数フィルタ
+                ===================================================== */
+                SelectFilter::make('trial_remaining')
+                    ->label(__('Trial Remaining'))
+                    ->options([
+                        '3' => __('Within 3 days'),
+                        '7' => __('Within 7 days'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (! $data['value']) {
+                            return $query;
+                        }
+
+                        return $query->whereBetween('trial_ends_at', [
+                            now()->startOfDay(),
+                            now()->addDays((int) $data['value'])->endOfDay(),
+                        ]);
+                    }),
+
+                /* =====================================================
+                | Subscription Plan
+                ===================================================== */
+                SelectFilter::make('plan_id')
                     ->label(__('Subscription Plan'))
-                    ->relationship('tenantPlan.plan', 'name'),
+                    ->relationship('tenantPlan.plan', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                /* =====================================================
+                | Active / Inactive
+                ===================================================== */
+                TernaryFilter::make('is_active')
+                    ->label(__('Active Status')),
+
             ])
+            
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
