@@ -13,6 +13,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction as PxlrbtExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel\Enums\ExportFormat;
 
 class TenantResource extends Resource
 {
@@ -21,6 +25,23 @@ class TenantResource extends Resource
 
     public static function getNavigationLabel(): string { return __('Tenants'); }
     public static function getNavigationGroup(): ?string { return __('System Management'); }
+
+    protected static ?string $pollingInterval = '30s';
+    protected static bool $isLazy = false;
+
+    public bool $visible = false;
+    protected int | string | array $columnSpan = 'full';
+
+    #[On('toggleTenantStats')]
+    public function toggle(): void
+    {
+        $this->visible = ! $this->visible;
+    }
+
+    public function shouldRender(): bool
+    {
+        return $this->visible;
+    }
 
     /**
      * ✅ 編集画面：ご提示の構成を完全維持
@@ -232,10 +253,11 @@ class TenantResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    // Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
+                    PxlrbtExportAction::make(),
                 ]),
-            ])
+            ])        
             ->filters([
                 Tables\Filters\SelectFilter::make('contract_state')
                     ->label(__('Contract State'))

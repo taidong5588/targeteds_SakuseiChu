@@ -26,7 +26,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name'        => 'System Admin',
                 'password'    => Hash::make('password'),
-                'tenant_id'   => $tenant->id,
+                // 'tenant_id'   => $tenant->id,
                 'role_id'     => $role->id,
                 'language_id' => $language->id,
             ]

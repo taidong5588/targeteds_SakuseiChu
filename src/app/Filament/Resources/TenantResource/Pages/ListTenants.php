@@ -3,35 +3,55 @@
 namespace App\Filament\Resources\TenantResource\Pages;
 
 use App\Filament\Resources\TenantResource;
+use App\Models\Tenant;
+use App\Filament\Resources\TenantResource\Widgets\TenantOverview;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use App\Models\Tenant;
 
 class ListTenants extends ListRecords
 {
     protected static string $resource = TenantResource::class;
 
+    /**
+     * 💡 統計を開いているかどうかのフラグ
+     */
+    public bool $isStatsOpen = false;
+
     protected function getHeaderActions(): array
     {
-        // 💡 効率的に要対応テナントを抽出
-        $criticalCount = Tenant::all()
-            ->filter(fn ($t) => $t->contractState() === 'trial_critical')
-            ->count();
+        $stats = Tenant::getStateStats();
+        $criticalCount = $stats['trial_critical'] ?? 0;
 
-        $actions = [];
+        return [
+            Action::make('toggleStats')
+                ->label(fn() => $this->isStatsOpen 
+                    ? "統計を閉じる" 
+                    : ($criticalCount > 0 ? "🚨 要対応 {$criticalCount} 件" : "📊 統計表示")
+                )
+                ->icon(fn() => $this->isStatsOpen ? 'heroicon-m-x-mark' : 'heroicon-m-chart-bar')
+                ->color(fn() => ($criticalCount > 0 && !$this->isStatsOpen) ? 'danger' : 'gray')
+                ->extraAttributes(fn() => ($criticalCount > 0 && !$this->isStatsOpen) ? ['class' => 'animate-bounce'] : [])
+                ->action(function () {
+                    // 1. 自身のボタン表示を切り替え
+                    $this->isStatsOpen = !$this->isStatsOpen;
+                    // 2. ウィジェットに「表示しろ/隠せ」とイベントを飛ばす
+                    $this->dispatch('toggleTenantStats');
+                }),
 
-        // 💡 件数がある時だけ赤い警告ボタンを表示
-        if ($criticalCount > 0) {
-            $actions[] = Action::make('attention')
-                ->label("🚨 Trial 要対応: {$criticalCount} 件")
-                ->color('danger')
-                ->extraAttributes(['class' => 'animate-bounce font-bold'])
-                ->disabled();
-        }
+            CreateAction::make()->icon('heroicon-m-plus'),
+        ];
+    }
 
-        $actions[] = CreateAction::make();
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            TenantOverview::class,
+        ];
+    }
 
-        return $actions;
+    public function getHeaderWidgetsColumns(): int|array
+    {
+        return 1;
     }
 }

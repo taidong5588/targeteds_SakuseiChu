@@ -83,4 +83,44 @@ class Tenant extends Model
             }
         });
     }
+
+    /**
+     * 📊 ステータスごとの件数・売上を一括取得（Widget専用）
+     * - DB条件ではなく、contractState() を唯一の正とする
+     * - N+1 回避のため eager load
+     */
+    public static function getStateStats(): array
+    {
+        $tenants = self::with(['tenantPlan', 'plan'])->get();
+
+        return [
+            'active' => $tenants->filter(
+                fn ($t) => $t->contractState() === 'active'
+            )->count(),
+
+            'trial_critical' => $tenants->filter(
+                fn ($t) => $t->contractState() === 'trial_critical'
+            )->count(),
+
+            'trial_warning' => $tenants->filter(
+                fn ($t) => $t->contractState() === 'trial_warning'
+            )->count(),
+
+            'expired' => $tenants->filter(
+                fn ($t) => $t->contractState() === 'expired'
+            )->count(),
+
+            'upcoming' => $tenants->filter(
+                fn ($t) => $t->contractState() === 'upcoming'
+            )->count(),
+
+            // 💰 月次予測売上（稼働中＋要対応トライアルのみ）
+            'total_revenue' => $tenants
+                ->filter(fn ($t) =>
+                    in_array($t->contractState(), ['active', 'trial_critical'], true)
+                )
+                ->sum(fn ($t) => $t->plan?->base_price ?? 0),
+        ];
+    }
+
 }
