@@ -64,8 +64,20 @@ class Tenant extends Model
     protected static function booted()
     {
         static::saving(function (Tenant $tenant) {
-            // 💡 期限切れ(expired)の場合のみ、is_activeを強制的にfalseにする
-            // それ以外（active等）は、管理者が画面で選んだToggleの状態が維持されます。
+            // 🚀 【重要】保存時にリレーション先から plan_id を親にコピーする
+            // これにより DB の plan_id カラムが埋まり、エラーを回避しつつ整合性を保ちます
+            if ($tenant->tenantPlan && $tenant->tenantPlan->plan_id) {
+                $tenant->plan_id = $tenant->tenantPlan->plan_id;
+            }
+
+            // 安全装置：日付の前後関係
+            if ($tenant->trial_start_at && $tenant->trial_ends_at) {
+                if ($tenant->trial_start_at->gt($tenant->trial_ends_at)) {
+                    $tenant->trial_ends_at = $tenant->trial_start_at;
+                }
+            }
+
+            // 期限切れ時の自動OFF
             if ($tenant->contractState() === 'expired') {
                 $tenant->is_active = false;
             }

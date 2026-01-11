@@ -52,7 +52,29 @@ class TenantResource extends Resource
                             ->offColor('danger'),
                     ])->columns(2),
 
-                // --- 2. Subscription & Billing ---
+                // --- 2. Usage trial Status & Expiry ---
+                Forms\Components\Section::make(__('Usage trial Status & Expiry'))
+                    ->icon('heroicon-m-clock')->collapsible()->collapsed()
+                    ->schema([
+                        Forms\Components\Placeholder::make('trial_date_error')
+                            ->label('')->columnSpanFull()
+                            ->content(function (Forms\Get $get) {
+                                $start = $get('trial_start_at');
+                                $end   = $get('trial_ends_at');
+                                if (filled($start) && filled($end) && $start > $end) {
+                                    return \App\Filament\Support\FormAlert::danger(__('ALERT: The End Date must be after or equal to Start Date!'));
+                                }
+                                return new \Illuminate\Support\HtmlString('<div class="text-sm font-medium text-gray-500 border-b border-gray-200 pb-2 mb-2 italic">'.__('Trial Period Configuration').'</div>');
+                            }),
+                        Forms\Components\DateTimePicker::make('trial_start_at')->label(__('Trial Start Date'))->live(),
+                        Forms\Components\DateTimePicker::make('trial_ends_at')->label(__('Trial End Date'))->live()->afterOrEqual('trial_start_at'),
+                        Forms\Components\Placeholder::make('trial_mode_notice')
+                            ->label('')->columnSpanFull()
+                            ->hidden(fn (Forms\Get $get) => ! filled($get('trial_start_at')) || ($get('trial_start_at') > $get('trial_ends_at')))
+                            ->content(fn () => new \Illuminate\Support\HtmlString('<div class="flex items-center gap-2 p-3 text-xs text-info-800 bg-info-50 border-l-4 border-info-400"><span>'.__('Trial mode active. Subscription plan selection is currently managed by system constraints.').'</span></div>')),
+                    ])->columns(2),
+
+                // --- 3. Subscription & Billing ---
                 Forms\Components\Section::make(__('Subscription & Billing'))
                     ->icon('heroicon-m-credit-card')
                     ->description(__('Manage plans, contract periods, and discounts.'))
@@ -90,15 +112,29 @@ class TenantResource extends Resource
                                             ->content(fn (Forms\Get $get) => "¥" . number_format(Plan::find($get('plan_id'))?->overage_unit_price ?? 0) . ' / ' . __('Unit')),
                                     ]),
                                 ])->columnSpanFull(),
+
                             Forms\Components\Grid::make(2)->schema([
+                                Forms\Components\Placeholder::make('contract_date_error')
+                                    ->label('')->columnSpanFull()
+                                    ->content(function (Forms\Get $get) {
+                                        $start = $get('contract_start_at');
+                                        $end   = $get('contract_end_at');
+                                        if (filled($start) && filled($end) && $start > $end) {
+                                            return \App\Filament\Support\FormAlert::danger(__('ALERT: The End Date must be after or equal to Start Date!'));
+                                        }
+                                        return new \Illuminate\Support\HtmlString('<div class="text-sm font-medium text-gray-500 border-b border-gray-200 pb-2 mb-2 italic">'.__('Subscription Period Configuration').'</div>');
+                                    }),
                                 Forms\Components\DatePicker::make('contract_start_at')
                                     ->label(__('Subscription Start Date'))
                                     ->required()->native(false),
                                 Forms\Components\DatePicker::make('contract_end_at')
                                     ->label(__('Subscription End Date'))
+                                    ->live()
+                                    ->afterOrEqual('contract_start_at')
                                     ->native(false),
-                            ]),
+                             ]),
                         ])->columnSpan(2),
+
                         Forms\Components\Section::make(__('Price Adjustment'))
                             ->schema([
                                 Forms\Components\Select::make('discount_type')
@@ -126,28 +162,6 @@ class TenantResource extends Resource
                                     }),
                             ])->columnSpan(1),
                     ])->columns(3),
-
-                // --- 3. Usage Status & Expiry ---
-                Forms\Components\Section::make(__('Usage Status & Expiry'))
-                    ->icon('heroicon-m-clock')->collapsible()->collapsed()
-                    ->schema([
-                        Forms\Components\Placeholder::make('trial_date_error')
-                            ->label('')->columnSpanFull()
-                            ->content(function (Forms\Get $get) {
-                                $start = $get('trial_start_at');
-                                $end   = $get('trial_ends_at');
-                                if (filled($start) && filled($end) && $start > $end) {
-                                    return \App\Filament\Support\FormAlert::danger(__('ALERT: The End Date must be after or equal to Start Date!'));
-                                }
-                                return new \Illuminate\Support\HtmlString('<div class="text-sm font-medium text-gray-500 border-b border-gray-200 pb-2 mb-2 italic">'.__('Trial Period Configuration').'</div>');
-                            }),
-                        Forms\Components\DateTimePicker::make('trial_start_at')->label(__('Trial Start Date'))->live(),
-                        Forms\Components\DateTimePicker::make('trial_ends_at')->label(__('Trial End Date'))->live()->afterOrEqual('trial_start_at'),
-                        Forms\Components\Placeholder::make('trial_mode_notice')
-                            ->label('')->columnSpanFull()
-                            ->hidden(fn (Forms\Get $get) => ! filled($get('trial_start_at')) || ($get('trial_start_at') > $get('trial_ends_at')))
-                            ->content(fn () => new \Illuminate\Support\HtmlString('<div class="flex items-center gap-2 p-3 text-xs text-info-800 bg-info-50 border-l-4 border-info-400"><span>'.__('Trial mode active. Subscription plan selection is currently managed by system constraints.').'</span></div>')),
-                    ])->columns(2),
 
                 // --- 4. System Settings ---
                 Forms\Components\Section::make(__('System Settings'))
@@ -194,7 +208,16 @@ class TenantResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('trial_ends_at')
                     ->label(__('Trial End'))
-                    ->date('Y/m/d'),
+                    ->date('Y/m/d')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('contract_start_at')
+                    ->label(__('Contract Start'))
+                    ->date('Y/m/d')
+                    ->sortable(),   
+                Tables\Columns\TextColumn::make('contract_end_at')
+                    ->label(__('Contract End'))
+                    ->date('Y/m/d')
+                    ->sortable(),                    
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('Active'))
                     ->boolean(),
@@ -205,6 +228,14 @@ class TenantResource extends Resource
                     ? ['bg-danger-500/10', 'animate-pulse']
                     : []
             )
+            // 🚀 一番左にチェックボックスを表示させる設定
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                ]),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('contract_state')
                     ->label(__('Contract State'))

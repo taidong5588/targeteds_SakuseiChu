@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id()->comment('テナントID');
             
             // リレーション
-            $table->foreignId('plan_id')->constrained('plans')->onDelete('restrict')->comment('契約プランID');
+            $table->foreignId('plan_id')->nullable()->constrained('plans')->onDelete('restrict')->comment('契約プランID');
             $table->foreignId('language_id')->constrained('languages')->onDelete('restrict')->comment('規定言語ID');
             
             // 基本情報
