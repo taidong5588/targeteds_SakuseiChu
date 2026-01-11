@@ -1024,3 +1024,30 @@
 [10-Jan-2026 22:42:16 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
 [10-Jan-2026 22:42:16 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
 [10-Jan-2026 22:42:16 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[10-Jan-2026 16:34:36 UTC] PHP Fatal error:  Cannot declare class App\Filament\Resources\TenantResource\Pages\AttentionTenantsWidget, because the name is already in use in /var/www/src/app/Filament/Resources/TenantResource/Pages/ListTenants.php on line 14
+[10-Jan-2026 16:34:38 UTC] PHP Fatal error:  Cannot declare class App\Filament\Resources\TenantResource\Pages\AttentionTenantsWidget, because the name is already in use in /var/www/src/app/Filament/Resources/TenantResource/Pages/ListTenants.php on line 14
+[10-Jan-2026 16:34:39 UTC] PHP Fatal error:  Cannot declare class App\Filament\Resources\TenantResource\Pages\AttentionTenantsWidget, because the name is already in use in /var/www/src/app/Filament/Resources/TenantResource/Pages/ListTenants.php on line 14
+[10-Jan-2026 16:47:51 UTC] PHP Fatal error:  Cannot redeclare App\Models\Tenant::booted() in /var/www/src/app/Models/Tenant.php on line 112
+[10-Jan-2026 16:50:39 UTC] PHP Fatal error:  Cannot redeclare App\Models\Tenant::booted() in /var/www/src/app/Models/Tenant.php on line 119
+[10-Jan-2026 16:50:41 UTC] PHP Fatal error:  Cannot redeclare App\Models\Tenant::booted() in /var/www/src/app/Models/Tenant.php on line 119
+[10-Jan-2026 16:52:30 UTC] PHP Fatal error:  Cannot redeclare App\Models\Tenant::booted() in /var/www/src/app/Models/Tenant.php on line 125
+[10-Jan-2026 16:52:31 UTC] PHP Fatal error:  Cannot redeclare App\Models\Tenant::booted() in /var/www/src/app/Models/Tenant.php on line 125
+[11-Jan-2026 09:28:42 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[11-Jan-2026 09:28:42 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[11-Jan-2026 09:28:42 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:36 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:37 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:37 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:37 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:37 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:37 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[11-Jan-2026 10:38:37 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[11-Jan-2026 01:56:26 UTC] PHP Fatal error:  Trait "App\Filament\Resources\Filament\Tables" not found in /var/www/src/app/Filament/Resources/TenantResource.php on line 21

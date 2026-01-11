@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\TenantResource\Pages;
 
 use App\Filament\Resources\TenantResource;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
 use App\Models\Tenant;
 
 class ListTenants extends ListRecords
@@ -13,22 +14,24 @@ class ListTenants extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        $count = Tenant::query()
-            ->where('is_active', true) // 現在有効なものだけ
-            ->whereNotNull('trial_ends_at')
-            ->whereDate('trial_ends_at', '>=', now()->startOfDay())
-            ->whereDate('trial_ends_at', '<=', now()->addDays(3)->endOfDay())
+        // 💡 効率的に要対応テナントを抽出
+        $criticalCount = Tenant::all()
+            ->filter(fn ($t) => $t->contractState() === 'trial_critical')
             ->count();
 
-        return array_merge(
-            $count > 0 ? [
-                Action::make('attentionTenants')
-                    ->label("🚨 要対応テナント {$count} 件")
-                    ->color('danger')
-                    ->extraAttributes(['class' => 'animate-bounce font-bold'])
-                    ->url('#'), // 必要ならフィルタ済みのURLへ
-            ] : [],
-            parent::getHeaderActions()
-        );
+        $actions = [];
+
+        // 💡 件数がある時だけ赤い警告ボタンを表示
+        if ($criticalCount > 0) {
+            $actions[] = Action::make('attention')
+                ->label("🚨 Trial 要対応: {$criticalCount} 件")
+                ->color('danger')
+                ->extraAttributes(['class' => 'animate-bounce font-bold'])
+                ->disabled();
+        }
+
+        $actions[] = CreateAction::make();
+
+        return $actions;
     }
 }
