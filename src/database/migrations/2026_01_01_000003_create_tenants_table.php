@@ -22,6 +22,9 @@ return new class extends Migration
             $table->string('name')->comment('企業名');
             $table->string('code')->unique()->comment('識別コード（URLや内部処理用）');
             $table->string('domain')->nullable()->comment('専用ドメイン（将来の独自ドメイン対応用）');
+
+            $table->string('notify_name')->nullable()->comment('担当者名（暗号化保存）');
+            $table->string('notify_email')->nullable()->comment('メールアドレス（暗号化保存）');          
             
             // 状態と期間管理
             $table->boolean('is_active')->default(true)->comment('有効フラグ（falseで全停止）');

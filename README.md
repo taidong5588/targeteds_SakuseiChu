@@ -163,3 +163,8 @@ php artisan queue:work
 
 % Filament ログイン画面（言語切替 UI）　📄 publish
 php artisan vendor:publish --tag=filament-panels-views
+
+php artisan tinker
+$tenant = App\Models\Tenant::first();
+App\Services\NotifyMailService::send('trial_3days', $tenant);
+App\Models\NotifyMailTemplate::where('key', 'trial_3days')->first();

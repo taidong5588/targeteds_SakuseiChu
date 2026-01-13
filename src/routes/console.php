@@ -12,3 +12,17 @@ Artisan::command('inspire', function () {
  * 監査ログのアーカイブを毎月実行する
  */
 Schedule::command('audit:archive')->monthly();
+
+/*
+|--------------------------------------------------------------------------
+| Console Routes
+|--------------------------------------------------------------------------
+| ここに Artisan コマンドやスケジュールを書く（Laravel 12方式）
+|--------------------------------------------------------------------------
+*/
+
+Schedule::command('notify:send-tenant-ending-alerts')
+    ->dailyAt('09:00')
+    ->onOneServer()
+    ->withoutOverlapping()
+    ->runInBackground();

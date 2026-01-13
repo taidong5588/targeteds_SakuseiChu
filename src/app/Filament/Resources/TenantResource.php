@@ -58,6 +58,16 @@ class TenantResource extends Resource
                             ->label(__('Company Name'))
                             ->required()
                             ->maxLength(255),
+
+                        Forms\Components\TextInput::make('notify_name')
+                            ->label(__('Notification Name'))
+                            ->placeholder('例）〇〇株式会社 管理窓口'),
+
+                        Forms\Components\TextInput::make('notify_email')
+                            ->label(__('Notification Email'))
+                            ->email()
+                            ->placeholder('notify@example.com'),
+
                         Forms\Components\TextInput::make('code')
                             ->label(__('Tenant Code'))
                             ->required()
@@ -242,13 +252,14 @@ class TenantResource extends Resource
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('Active'))
                     ->boolean(),
+
+                Tables\Columns\TextColumn::make('notify_email')
+                    ->label(__('Notify Email'))
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    // 🚀 マスキング表示 (例: te***@example.com)
+                    ->formatStateUsing(fn (string $state) => \Illuminate\Support\Str::mask($state, '*', 2, 5)),                 
+                    //->getStateUsing(fn ($record) => $record->manager_email ? substr($record->manager_email,0,1).'***@***.com' : '-')
             ])
-            // 🔥 行点滅ロジック
-            ->recordClasses(fn (Tenant $record) =>
-                $record->contractState() === 'trial_critical'
-                    ? ['bg-danger-500/10', 'animate-pulse']
-                    : []
-            )
             // 🚀 一番左にチェックボックスを表示させる設定
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -276,7 +287,12 @@ class TenantResource extends Resource
                             ->pluck('id');
                         return $query->whereIn('id', $ids);
                     }),
-            ]);
+                // 🚀 「Trial Only」フィルタの追加
+                Tables\Filters\Filter::make('is_trial')
+                    ->label('トライアル中のみ')
+                    ->query(fn (Builder $query) => $query->whereNotNull('trial_ends_at')->where('is_active', true))
+                    ->indicator('Trialing'),                    
+                ]);
     }
 
     public static function getPages(): array

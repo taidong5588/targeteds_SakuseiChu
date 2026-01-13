@@ -12,14 +12,26 @@ class Tenant extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'plan_id', 'language_id', 'name', 'code', 'domain',
-        'is_active', 'trial_start_at', 'trial_ends_at', 'audit_log_retention_days',
+        'plan_id', 
+        'language_id', 
+        'name', 
+        'code', 
+        'domain',
+        'notify_name',
+        'notify_email',
+        'is_active', 
+        'trial_start_at', 
+        'trial_ends_at', 
+        'audit_log_retention_days',
     ];
 
     protected $casts = [
         'is_active'      => 'boolean',
         'trial_start_at' => 'datetime',
         'trial_ends_at'  => 'datetime',
+        // 🚀 個人情報保護：DB上では暗号化、取得時に自動復号
+        'notify_name' => 'encrypted',
+        'notify_email' => 'encrypted',
     ];
 
     public function plan(): BelongsTo { return $this->belongsTo(Plan::class); }

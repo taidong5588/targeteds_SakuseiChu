@@ -19,7 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\SetFilamentLocale; // 追加
-
+use Illuminate\Support\HtmlString;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -72,6 +72,25 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
-    }
+            ])
+            ->renderHook(
+                        'panels::body.end',
+                        fn () => new \Illuminate\Support\HtmlString("
+                            <script>
+                                window.addEventListener('insert-variable', (e) => {
+                                    // FilamentのRichEditor(Trix)を探す
+                                    const container = document.querySelector('.template-body-editor');
+                                    if (!container) return;
+                                    
+                                    const trixEditor = container.querySelector('trix-editor');
+                                    if (trixEditor && trixEditor.editor) {
+                                        trixEditor.focus();
+                                        trixEditor.editor.insertString(e.detail.text);
+                                    }
+                                });
+                            </script>
+                        ")
+                    );
+
+                }
 }

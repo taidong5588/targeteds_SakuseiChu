@@ -8,6 +8,7 @@ use App\Models\Language;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Models\Role;
+use pp\Models\NotifyMailTemplate;
 
 class DatabaseSeeder extends Seeder
 {
@@ -32,6 +33,7 @@ public function run(): void
             RoleSeeder::class,
             TenantSeeder::class,
             AdminUserSeeder::class,
+            NotifyMailTemplateSeeder::class,
         ]);
     }
 

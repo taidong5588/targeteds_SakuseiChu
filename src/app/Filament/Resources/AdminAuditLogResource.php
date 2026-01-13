@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
  *
  * ✔ 外販 / ISMS / SOC2 / 内部監査 対応
  * ✔ 改ざん不可（Read Only）
- * ✔ CSV / Excel Export 対応
+ * ✔ CSV / Excel Export 対応（全件・選択）
  * ✔ 人が読める UI（wrap / limit / tooltip）
  */
 class AdminAuditLogResource extends Resource
@@ -32,7 +33,6 @@ class AdminAuditLogResource extends Resource
 
     /**
      * 🔒 監査ログは「参照のみ」
-     * （作成・編集・削除は禁止）
      */
     public static function canCreate(): bool { return false; }
     public static function canEdit($record): bool { return false; }
@@ -44,36 +44,20 @@ class AdminAuditLogResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // 最新ログを上に表示（監査で最重要）
             ->defaultSort('occurred_at', 'desc')
 
             /**
-             * 📥 CSV / Excel Export
-             * 外販・監査提出で必須
+             * 📥 全件エクスポート
              */
             ->headerActions([
                 ExportAction::make()
-                    ->label('Export Logs')
+                    ->label('Export All')
                     ->exports([
                         ExcelExport::make()
                             ->fromTable()
-                            ->withFilename('audit_logs_' . date('Ymd_His')),
+                            ->withFilename('all_audit_logs_' . date('Ymd_His')),
                     ])
-                    // 🚀 エクスポート完了後に監査ログを生成
-                    ->after(function () {
-                        AdminAuditLog::create([
-                            'admin_user_id' => Auth::guard('admin')->id(),
-                            'tenant_id' => Auth::guard('admin')->user()->tenant_id ?? null,
-                            'action' => 'export_logs', // 専用のアクション名
-                            'target_type' => AdminAuditLog::class,
-                            'target_id' => null,
-                            'before' => null,
-                            'after' => ['purpose' => 'System Audit Export'],
-                            'ip' => request()->ip(),
-                            'user_agent' => request()->userAgent(),
-                            'occurred_at' => now(),
-                        ]); 
-                    }),
+                    ->after(fn () => static::logExportAction('all')),
             ])
 
             ->columns([
@@ -87,7 +71,6 @@ class AdminAuditLogResource extends Resource
 
                 /**
                  * 👤 操作管理者
-                 * wrap で列幅を人が調整可能に
                  */
                 Tables\Columns\TextColumn::make('adminUser.name')
                     ->label('Admin')
@@ -96,9 +79,6 @@ class AdminAuditLogResource extends Resource
 
                 /**
                  * 🏢 テナント
-                 *
-                 * DB: NULL = システム操作
-                 * UI: NULL は不親切なため "System" 表示
                  */
                 Tables\Columns\TextColumn::make('tenant.name')
                     ->label('Tenant')
@@ -107,7 +87,6 @@ class AdminAuditLogResource extends Resource
 
                 /**
                  * 🧭 操作種別
-                 * 色分けで即判別可能
                  */
                 Tables\Columns\TextColumn::make('action')
                     ->label('Action')
@@ -118,25 +97,24 @@ class AdminAuditLogResource extends Resource
                         'created'        => 'success',
                         'updated'        => 'info',
                         'login', 'logout'=> 'gray',
+                        'export_logs'    => 'success',
                         default          => 'gray',
                     })
                     ->sortable(),
 
                 /**
                  * 🎯 操作対象モデル
-                 * 長い FQCN は limit + tooltip
                  */
                 Tables\Columns\TextColumn::make('target_type')
                     ->label('Target')
                     ->formatStateUsing(
-                        fn ($state) => str_replace('App\\Models\\', '', $state)
+                        fn ($state) => str_replace('App\\Models\\', '', (string)$state)
                     )
                     ->limit(20)
-                    ->tooltip(fn ($state): string => $state),
+                    ->tooltip(fn ($state): string => (string)$state),
 
                 /**
                  * 🆔 対象ID
-                 * width 固定で表を安定させる
                  */
                 Tables\Columns\TextColumn::make('target_id')
                     ->label('ID')
@@ -144,7 +122,6 @@ class AdminAuditLogResource extends Resource
 
                 /**
                  * 🌐 IPアドレス
-                 * 通常は非表示（必要時のみ）
                  */
                 Tables\Columns\TextColumn::make('ip')
                     ->label('IP Address')
@@ -160,65 +137,68 @@ class AdminAuditLogResource extends Resource
                         'created'       => 'Created',
                         'updated'       => 'Updated',
                         'deleted'       => 'Deleted',
-                        'role_changed' => 'Role Changed',
+                        'role_changed'  => 'Role Changed',
                         'login'         => 'Login',
                         'logout'        => 'Logout',
+                        'export_logs'   => 'Export Logs',
                     ]),
             ])
 
             /**
-             * 👁 詳細表示のみ許可
+             * 👁️ 個別アクション
              */
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
-            ->bulkActions([]);
+
+            /**
+             * 🗳️ チェックボックス選択アクション（一括エクスポート）
+             */
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->label('Export Selected')
+                        ->exports([
+                            ExcelExport::make()
+                                ->fromTable()
+                                ->withFilename('selected_audit_logs_' . date('Ymd_His')),
+                        ])
+                        ->after(fn () => static::logExportAction('selected')),
+                ]),
+            ]);
     }
 
     /**
      * 📄 詳細画面（Infolist）
-     * 証跡・追跡性を重視
      */
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
             ->schema([
-                /**
-                 * 🔎 トレーサビリティ情報
-                 */
                 Infolists\Components\Section::make('Traceability')
                     ->schema([
                         Infolists\Components\TextEntry::make('occurred_at')
                             ->label('Timestamp')
                             ->dateTime(),
-
                         Infolists\Components\TextEntry::make('adminUser.name')
                             ->label('Operator'),
-
                         Infolists\Components\TextEntry::make('action')
                             ->badge(),
-
                         Infolists\Components\TextEntry::make('ip')
                             ->label('Source IP'),
-
                         Infolists\Components\TextEntry::make('user_agent')
                             ->label('User Agent')
                             ->columnSpanFull(),
                     ])
                     ->columns(4),
 
-                /**
-                 * 🔄 変更差分（Before / After）
-                 * JSON を Key-Value で可視化
-                 */
                 Infolists\Components\Grid::make(2)
                     ->schema([
                         Infolists\Components\Section::make('Before (Original)')
                             ->icon('heroicon-m-arrow-left-circle')
                             ->iconColor('danger')
                             ->schema([
-                                Infolists\Components\KeyValueEntry::make('before')
-                                    ->label(''),
+                                Infolists\Components\KeyValueEntry::make('before')->label(''),
                             ])
                             ->columnSpan(1),
 
@@ -226,8 +206,7 @@ class AdminAuditLogResource extends Resource
                             ->icon('heroicon-m-arrow-right-circle')
                             ->iconColor('success')
                             ->schema([
-                                Infolists\Components\KeyValueEntry::make('after')
-                                    ->label(''),
+                                Infolists\Components\KeyValueEntry::make('after')->label(''),
                             ])
                             ->columnSpan(1),
                     ]),
@@ -235,8 +214,22 @@ class AdminAuditLogResource extends Resource
     }
 
     /**
-     * 📌 Pages
+     * 🚀 監査ログ記録用メソッド
      */
+    protected static function logExportAction(string $scope): void
+    {
+        AdminAuditLog::create([
+            'admin_user_id' => Auth::guard('admin')->id(),
+            'tenant_id'     => Auth::guard('admin')->user()->tenant_id ?? null,
+            'action'        => 'export_logs',
+            'target_type'   => self::class,
+            'after'         => ['scope' => $scope, 'purpose' => 'System Audit Export'],
+            'ip'            => request()->ip(),
+            'user_agent'    => request()->userAgent(),
+            'occurred_at'   => now(),
+        ]);
+    }
+
     public static function getPages(): array
     {
         return [
