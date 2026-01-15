@@ -210,62 +210,52 @@ class NotifyMailTemplateResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('Active Status')),
             ])
-            ->actions([
-                EditAction::make(),
+            
+        ->actions([
+                Tables\Actions\EditAction::make(),
 
                 Action::make('preview')
-                    ->label('preview')
+                    ->label(__('Preview'))
                     ->icon('heroicon-m-eye')
                     ->color('gray')
                     ->modalHeading(__('Mail Template Preview'))
+                    ->modalWidth('4xl')
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel(__('Close'))
-                    ->modalContent(function ($record) {
-
-                        // 🔎 preview用テナント（先頭1件）
-                        $tenant = Tenant::first();
-
-                        if (! $tenant) {
-                            return 'The tenant does not exist.';
-                        }
-
-                        // ✅ HtmlString を返す（Filament対応）
-                        return NotifyMailService::renderPreview(
-                            template: $record,
-                            tenant: $tenant
-                        );
-                    })
-                    // ->modalContent(fn ($record) => \App\Services\NotifyMailService::renderPreview($record))
-                    ->modalSubmitAction(false)
+                    ->modalContent(fn (NotifyMailTemplate $record) =>
+                        ($tenant = Tenant::first())
+                            ? NotifyMailService::renderPreview($record, $tenant)
+                            : __('Tenant not found.')
+                    )
                     ->extraModalFooterActions([
-                        // モーダルの左下に「自分に送る」ボタンを配置
-                        Tables\Actions\Action::make('send_test_direct')
-                            ->label('自分のメアドにテスト送信')
+                        // ① 自分に送信
+                        Action::make('send_me')
+                            ->label(__('Send to me'))
+                            ->icon('heroicon-m-user')
+                            ->color('info')
+                            ->requiresConfirmation()
+                            ->modalHeading(__('Send test email to yourself?'))
+                            ->modalDescription(__('It will be sent to: ') . auth()->user()->email)
+                            ->action(fn (NotifyMailTemplate $record) =>
+                                // ✅ クラス内の static メソッドを呼び出す
+                                self::handleTestSend(auth()->user()->email, $record)
+                            ),
+
+                        // ② 宛先指定送信
+                        Action::make('send_any')
+                            ->label(__('Send to specified address'))
                             ->icon('heroicon-m-paper-airplane')
                             ->color('success')
-                            ->requiresConfirmation()
-                            ->modalHeading('テストメールを送信しますか？')
-                            ->modalDescription('現在ログインしているメールアドレス宛に送信されます。')
-                            ->action(function (NotifyMailTemplate $record) {
-                                try {
-                                    \App\Services\NotifyMailService::sendTestMail(
-                                        auth()->user()->email,
-                                        $record,
-                                        $record->toArray()
-                                    );
-
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('送信しました')
-                                        ->success()
-                                        ->send();
-                                } catch (\Exception $e) {
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('送信エラー')
-                                        ->body($e->getMessage())
-                                        ->danger()
-                                        ->send();
-                                }
-                            })
+                            ->form([
+                                Forms\Components\TextInput::make('email')
+                                    ->label(__('Email Address'))
+                                    ->email()
+                                    ->required()
+                                    ->placeholder(fn () => auth()->user()->email),
+                            ])
+                            ->action(fn (array $data, NotifyMailTemplate $record) =>
+                                // ✅ クラス内の static メソッドを呼び出す
+                                self::handleTestSend($data['email'], $record)
+                            ),
                     ]),
             ])
 
@@ -274,6 +264,41 @@ class NotifyMailTemplateResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * ✅ UI側の送信ハンドラ
+     */
+    public static function handleTestSend(string $email, NotifyMailTemplate $record): void
+    {
+        try {
+            // テナントはプレビュー用に1件取得
+            $tenant = \App\Models\Tenant::first();
+
+            if (!$tenant) {
+                throw new \Exception('テナントが存在しません。');
+            }
+
+            // 🚀 本番と同じロジックを呼び出す
+            \App\Services\NotifyMailService::send(
+                templateKey: $record->key,
+                tenant: $tenant,
+                overrideEmail: $email // 👈 ここでテスト用アドレスを渡す
+            );
+
+            \Filament\Notifications\Notification::make()
+                ->title(__('Mail sent successfully'))
+                ->body($email)
+                ->success()
+                ->send();
+
+        } catch (\Throwable $e) {
+            \Filament\Notifications\Notification::make()
+                ->title(__('Send failed'))
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public static function getRelations(): array

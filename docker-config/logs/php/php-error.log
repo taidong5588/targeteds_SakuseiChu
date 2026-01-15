@@ -207,3 +207,58 @@
 [13-Jan-2026 22:08:42 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
 [13-Jan-2026 22:08:42 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
 [13-Jan-2026 22:08:42 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[13-Jan-2026 13:36:05 UTC] PHP Fatal error:  Cannot use Filament\Tables\Actions\Action as Action because the name is already in use in /var/www/src/app/Filament/Resources/NotifyMailTemplateResource.php on line 20
+[13-Jan-2026 23:25:03 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[13-Jan-2026 23:25:03 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[13-Jan-2026 23:25:03 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[13-Jan-2026 14:25:08 UTC] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Log as Log because the name is already in use in /var/www/src/app/Services/NotifyMailService.php on line 12
+[13-Jan-2026 14:25:49 UTC] PHP Fatal error:  Cannot use Illuminate\Support\Facades\Log as Log because the name is already in use in /var/www/src/app/Services/NotifyMailService.php on line 12
+[13-Jan-2026 23:28:30 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[13-Jan-2026 23:28:30 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[13-Jan-2026 23:28:30 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 22:04:32 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 22:04:32 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 22:04:32 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:14 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:15 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:15 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:15 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:15 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:15 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 22:11:15 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 13:28:19 UTC] PHP Fatal error:  Cannot use Filament\Notifications\Notification as Notification because the name is already in use in /var/www/src/app/Services/NotifyMailService.php on line 15
+[14-Jan-2026 23:07:57 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:57 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:57 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:58 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:58 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:58 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:58 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:58 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[14-Jan-2026 23:07:58 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[14-Jan-2026 14:28:46 UTC] PHP Fatal error:  Cannot use Illuminate\Support\HtmlString as HtmlString because the name is already in use in /var/www/src/app/Services/NotifyMailService.php on line 16
+[14-Jan-2026 14:29:00 UTC] PHP Fatal error:  Cannot use Illuminate\Support\HtmlString as HtmlString because the name is already in use in /var/www/src/app/Services/NotifyMailService.php on line 15
+[14-Jan-2026 14:29:05 UTC] PHP Fatal error:  Cannot use Illuminate\Support\HtmlString as HtmlString because the name is already in use in /var/www/src/app/Services/NotifyMailService.php on line 15
+[15-Jan-2026 21:40:57 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[15-Jan-2026 21:40:57 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[15-Jan-2026 21:40:57 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:03 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:03 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:03 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:04 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:04 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:04 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:04 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:04 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:04 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:38 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_input is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:38 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.http_output is deprecated in Unknown on line 0
+[15-Jan-2026 22:14:38 Asia/Tokyo] PHP Deprecated:  PHP Startup: Use of mbstring.internal_encoding is deprecated in Unknown on line 0
