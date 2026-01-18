@@ -105,8 +105,8 @@ class TenantResource extends Resource
                             ->content(fn () => new \Illuminate\Support\HtmlString('<div class="flex items-center gap-2 p-3 text-xs text-info-800 bg-info-50 border-l-4 border-info-400"><span>'.__('Trial mode active. Subscription plan selection is currently managed by system constraints.').'</span></div>')),
                     ])->columns(2),
 
-                // --- 3. Subscription & Billing ---
-                Forms\Components\Section::make(__('Subscription & Billing'))
+                // --- 3. Contract & Billing ---
+                Forms\Components\Section::make(__('Contract & Billing'))
                     ->icon('heroicon-m-credit-card')
                     ->description(__('Manage plans, contract periods, and discounts.'))
                     ->relationship('tenantPlan') 
@@ -153,13 +153,13 @@ class TenantResource extends Resource
                                         if (filled($start) && filled($end) && $start > $end) {
                                             return \App\Filament\Support\FormAlert::danger(__('ALERT: The End Date must be after or equal to Start Date!'));
                                         }
-                                        return new \Illuminate\Support\HtmlString('<div class="text-sm font-medium text-gray-500 border-b border-gray-200 pb-2 mb-2 italic">'.__('Subscription Period Configuration').'</div>');
+                                        return new \Illuminate\Support\HtmlString('<div class="text-sm font-medium text-gray-500 border-b border-gray-200 pb-2 mb-2 italic">'.__('Contract Period Configuration').'</div>');
                                     }),
                                 Forms\Components\DatePicker::make('contract_start_at')
-                                    ->label(__('Subscription Start Date'))
+                                    ->label(__('Contract Start Date'))
                                     ->required()->native(false),
                                 Forms\Components\DatePicker::make('contract_end_at')
-                                    ->label(__('Subscription End Date'))
+                                    ->label(__('Contract End Date'))
                                     ->live()
                                     ->afterOrEqual('contract_start_at')
                                     ->native(false),
@@ -216,8 +216,9 @@ class TenantResource extends Resource
                     ->weight('bold')
                     ->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('tenantPlan.plan.name')
-                    ->label(__('Plan'))
-                    ->badge()->color('info'),
+                    ->label(__('Plan Name'))
+                    ->badge()->color('info')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('state')
                     ->label(__('Status'))
                     ->state(fn (Tenant $record) => $record->contractState())
@@ -241,11 +242,11 @@ class TenantResource extends Resource
                     ->label(__('Trial End'))
                     ->date('Y/m/d')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('contract_start_at')
+                Tables\Columns\TextColumn::make('tenantPlan.contract_start_at')
                     ->label(__('Contract Start'))
                     ->date('Y/m/d')
                     ->sortable(),   
-                Tables\Columns\TextColumn::make('contract_end_at')
+                Tables\Columns\TextColumn::make('tenantPlan.contract_end_at')
                     ->label(__('Contract End'))
                     ->date('Y/m/d')
                     ->sortable(),                    
