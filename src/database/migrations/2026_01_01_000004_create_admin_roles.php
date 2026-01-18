@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('admin_roles', function (Blueprint $table) {
             $table->id()->comment('ロールID');
-            $table->string('name')->comment('ロール名（翻訳キー：Super Admin等）');
+            $table->string('name')->unique()->comment('ロール名（翻訳キー：Super Admin等）');
             $table->string('code')->unique()->comment('ロールコード（例：super_admin）');
             $table->text('description')->nullable()->comment('役割の説明（翻訳キー）');
             $table->timestamps();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('admin_roles');
     }
 };

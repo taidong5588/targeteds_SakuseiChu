@@ -14,10 +14,6 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id()->comment('テナントID');
             
-            // リレーション
-            $table->foreignId('plan_id')->nullable()->constrained('plans')->onDelete('restrict')->comment('契約プランID');
-            $table->foreignId('language_id')->constrained('languages')->onDelete('restrict')->comment('規定言語ID');
-            
             // 基本情報
             $table->string('name')->comment('企業名');
             $table->string('code')->unique()->comment('識別コード（URLや内部処理用）');
@@ -31,6 +27,10 @@ return new class extends Migration
             $table->timestamp('trial_start_at')->nullable()->comment('トライアル開始日時');
             $table->timestamp('trial_ends_at')->nullable()->comment('トライアル終了日時');
 
+            // リレーション
+            $table->foreignId('plan_id')->nullable()->constrained('plans')->onDelete('restrict')->comment('契約プランID');
+            $table->foreignId('language_id')->constrained('languages')->onDelete('restrict')->comment('規定言語ID');
+                        
             $table->string('mail_from_address')->nullable()->comment('送信元メールアドレス（暗号化保存）');
             $table->string('mail_from_name')->nullable()->comment('送信元名（暗号化保存）');
 

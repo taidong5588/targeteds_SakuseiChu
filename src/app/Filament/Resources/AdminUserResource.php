@@ -9,7 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use App\Models\Role;
+use App\Models\AdminRole;
 
 class AdminUserResource extends Resource
 {
@@ -35,28 +35,6 @@ class AdminUserResource extends Resource
             ->schema([
                 Forms\Components\Section::make(__('Profile'))
                     ->schema([
-                        // 🏢 テナントマスタ紐付け
-                        Forms\Components\Select::make('tenant_id')
-                            ->label(__('Company Name'))
-                            ->relationship('tenant', 'name')
-                            ->searchable()
-                            ->preload()
-                            // 💡 ロジック修正：
-                            // 1. Super Admin ではないこと
-                            // 2. かつ、Viewer（閲覧者）でもないこと 
-                            // この2つの場合に「必須」にする
-                            ->required(fn (Forms\Get $get) => 
-                                $get('role_id') && 
-                                !in_array(Role::find($get('role_id'))?->code, ['super_admin', 'viewer'])
-                            )
-                            // 💡 Super Admin の場合は非表示
-                            ->hidden(fn (Forms\Get $get) => 
-                                $get('role_id') && Role::find($get('role_id'))?->code === 'super_admin'
-                            )
-                            // 💡 閲覧者の場合は、項目は見せるが「編集不可」にする（またはお好みでhiddenでもOK）
-                            ->disabled(fn (Forms\Get $get) => 
-                                $get('role_id') && Role::find($get('role_id'))?->code === 'viewer'
-                            ),
 
                         Forms\Components\TextInput::make('name')
                             ->label(__('Name'))
@@ -77,9 +55,9 @@ class AdminUserResource extends Resource
                             ->dehydrated(fn ($state) => filled($state)),
 
                         // 🔑 ロールマスタ紐付け
-                        Forms\Components\Select::make('role_id')
+                        Forms\Components\Select::make('admin_role_id')
                             ->label(__('Role'))
-                            ->relationship('role', 'name')
+                            ->relationship('adminRole', 'name')
                             ->getOptionLabelFromRecordUsing(fn ($record) => __($record->name)) // DB内の値を翻訳
                             ->required()
                             ->preload(),
@@ -109,10 +87,6 @@ class AdminUserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tenant.name')
-                    ->label(__('Company Name'))
-                    ->sortable()
-                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('Name'))
@@ -124,12 +98,12 @@ class AdminUserResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('role.name')
+                Tables\Columns\TextColumn::make('adminRole.name')
                     ->label(__('Role'))
                     ->formatStateUsing(fn ($state) => __($state))
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        'Super Admin' => 'danger',
+                        'super_admin' => 'danger',
                         'Tenant Admin' => 'primary',
                         default => 'gray',
                     })
@@ -144,11 +118,6 @@ class AdminUserResource extends Resource
                     ->dateTime('Y-m-d H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('tenant_id')
-                    ->label(__('Company Name'))
-                    ->relationship('tenant', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

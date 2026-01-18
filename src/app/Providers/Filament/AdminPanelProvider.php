@@ -20,6 +20,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\SetFilamentLocale; // 追加
 use Illuminate\Support\HtmlString;
+use App\Filament\Widgets\RevenueAndContractsForecastChart; // ✅ これを追加
+use App\Filament\Widgets\TenantStatsOverview;              // ✅ これも追加
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -54,6 +56,23 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                RevenueAndContractsForecastChart::class, // ✅ 追加
+                TenantStatsOverview::class,              // ✅ 追加
+                
+                // // 1段目：最重要KPI (Stat)
+                // \App\Filament\Widgets\RevenueKpiOverview::class, // MRR, ARR, NRR
+                // \App\Filament\Widgets\MrrGrowthStat::class,      // 成長率
+                // \App\Filament\Widgets\TrialConversionStat::class, // コンバージョン
+
+                // // 2段目：分析グラフ & コホート
+                // \App\Filament\Widgets\RevenueAndContractsForecastChart::class,
+                // \App\Filament\Widgets\CohortNrrTable::class,
+
+                // // 3段目：アクションが必要なリスト
+                // \App\Filament\Widgets\ExpiringTenantsTable::class, // 今月終了
+                // \App\Filament\Widgets\AtRiskTenantsTable::class,   // 低稼働
+                // \App\Filament\Widgets\ChurnPredictionTable::class, // 解約スコア
+
             ])
             ->middleware([
                 EncryptCookies::class,

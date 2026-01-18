@@ -18,17 +18,10 @@ return new class extends Migration
             $table->string('email')->unique()->comment('ログインメール');
             $table->string('password')->comment('ハッシュ化パスワード');
 
-            // // 🏢 所属テナント
-            // $table->foreignId('tenant_id')
-            //     ->nullable()
-            //     ->constrained('tenants')
-            //     ->restrictOnDelete()
-            //     ->comment('所属テナントID');
-
             // 🔑 管理者ロール
-            $table->foreignId('role_id')
+            $table->foreignId('admin_role_id')
                 ->nullable()
-                ->constrained('roles')
+                ->constrained('admin_roles')
                 ->restrictOnDelete()
                 ->comment('役割ID');
 
@@ -39,7 +32,6 @@ return new class extends Migration
                 ->restrictOnDelete()
                 ->comment('優先言語ID');
 
-            $table->string('role')->default('super_admin')->comment('権限種別');
             $table->string('locale', 10)->default('ja')->comment('管理画面の表示言語');                
 
             $table->rememberToken();
@@ -54,4 +46,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('admin_users');
     }
+
 };

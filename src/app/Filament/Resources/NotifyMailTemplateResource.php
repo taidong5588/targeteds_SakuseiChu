@@ -140,6 +140,36 @@ class NotifyMailTemplateResource extends Resource
                                     ]),                                                                   
                         ]),
 
+                        // // formメソッド内
+                        // Forms\Components\Grid::make(3)->schema([
+                        //     // 左側：メール作成（本文など）
+                        //     Forms\Components\Group::make([
+                        //         Forms\Components\TextInput::make('subject')->label('件名')->required(),
+                        //         Forms\Components\Textarea::make('body')
+                        //             ->label('本文')
+                        //             ->rows(15)
+                        //             ->required()
+                        //             ->helperText('変数（例: {{name}}）を使用してパーソナライズできます。'),
+                        //     ])->columnSpan(2),
+
+                        //     // 右側：利用可能な変数一覧（Placeholderを使用）
+                        //     Forms\Components\Section::make('利用可能な変数')
+                        //         ->description('コピーして本文に貼り付けてください')
+                        //         ->columnSpan(1)
+                        //         ->schema([
+                        //             Forms\Components\Placeholder::make('variables_hint')
+                        //                 ->label('')
+                        //                 ->content(new \Illuminate\Support\HtmlString('
+                        //                     <ul class="text-sm space-y-2 font-mono">
+                        //                         <li class="p-1 bg-gray-100 border rounded"><strong>{{name}}</strong>: 氏名</li>
+                        //                         <li class="p-1 bg-gray-100 border rounded"><strong>{{company}}</strong>: 会社名</li>
+                        //                         <li class="p-1 bg-gray-100 border rounded"><strong>{{url}}</strong>: 訓練URL</li>
+                        //                         <li class="p-1 bg-gray-100 border rounded"><strong>{{date}}</strong>: 今日の日付</li>
+                        //                     </ul>
+                        //                 ')),
+                        //         ]),
+                        // ]),
+
                     /* =====================================================
                     * memo（管理者向けメモ）
                     * ===================================================== */                       

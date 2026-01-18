@@ -2,18 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\NotifyMailTemplate;
 
 class NotifyMailTemplateSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        NotifyMailTemplate::insert([
+        $templates = [
             [
                 'key' => 'trial_7days',
                 'slug' => 'trial-7days',
@@ -26,7 +22,12 @@ class NotifyMailTemplateSeeder extends Seeder
 <strong>{expiry_date}</strong> に終了予定です。<br><br>
 ご不明点がございましたら、お気軽にお問い合わせください。
 HTML,
-                'memo' => '{notify_name}, {tenant_name}, {expiry_date}',
+                'allowed_variables' => [
+                    'notify_name',
+                    'tenant_name',
+                    'expiry_date',
+                ],
+                'memo' => 'トライアル終了7日前に送信',
                 'is_active' => true,
             ],
             [
@@ -40,37 +41,65 @@ HTML,
 <strong>{tenant_name}</strong> の契約は
 <strong>{expiry_date}</strong> に終了予定です。
 HTML,
-                'memo' => '{notify_name}, {tenant_name}, {expiry_date}',
+                'allowed_variables' => [
+                    'notify_name',
+                    'tenant_name',
+                    'expiry_date',
+                ],
+                'memo' => '契約終了前の案内通知',
                 'is_active' => true,
             ],
             [
                 'key' => 'trial_3days',
-                'slug' => 'trial-alert',
-                'title' => 'トライアル終了3日前',
+                'slug' => 'trial-3days',
+                'title' => 'トライアル終了3日前通知',
                 'channel' => 'mail',
                 'subject' => '【重要】トライアル期間終了の3日前となりました',
-                'body' => "{{ notify_name }} 様\n\n{{ tenant_name }}のトライアル終了日は {{ expiry_date }} です。\n本契約への移行をご検討ください。",
-                'memo' => 'トライアル終了が近づいた際に送信されます。',
+                'body' => <<<TEXT
+{notify_name} 様
+
+{tenant_name} のトライアル終了日は {expiry_date} です。
+本契約への移行をご検討ください。
+TEXT,
+                'allowed_variables' => [
+                    'notify_name',
+                    'tenant_name',
+                    'expiry_date',
+                ],
+                'memo' => 'トライアル終了3日前に送信',
                 'is_active' => true,
             ],
-
             [
-                'key'   => 'trial_7days',
-                'name'  => 'トライアル終了7日前通知',
+                'key' => 'trial_7days_app',
+                'slug' => 'trial-7days-app',
+                'title' => 'トライアル終了7日前通知（アプリ名入り）',
                 'channel' => 'mail',
-                'subject' => '【{{ app_name }}】トライアル終了まで残り7日です',
-                'body' => <<<HTML
-{{ notify_name }} 様
-テナント「{{ tenant_name }}」のトライアルは
-{{ expiry_date }} に終了予定です。
+                'subject' => '【{app_name}】トライアル終了まで残り7日です',
+                'body' => <<<TEXT
+{notify_name} 様
+
+テナント「{tenant_name}」のトライアルは
+{expiry_date} に終了予定です。
+
 ご確認をお願いいたします。
-{{ app_name }}
-'available_variables' => 'tenant_name, notify_name, expiry_date, app_name',
-HTML,
-            ]
+{app_name}
+TEXT,
+                'allowed_variables' => [
+                    'notify_name',
+                    'tenant_name',
+                    'expiry_date',
+                    'app_name',
+                ],
+                'memo' => 'アプリ名を含めたトライアル7日前通知',
+                'is_active' => true,
+            ],
+        ];
 
-
-
-        ]);
+        foreach ($templates as $template) {
+            NotifyMailTemplate::updateOrCreate(
+                ['key' => $template['key']],
+                $template
+            );
+        }
     }
 }

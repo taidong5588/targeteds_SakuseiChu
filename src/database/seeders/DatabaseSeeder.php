@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Language;
 use App\Models\Plan;
 use App\Models\Tenant;
-use App\Models\Role;
+use App\Models\AdminRole;
 use pp\Models\NotifyMailTemplate;
 
 class DatabaseSeeder extends Seeder
@@ -30,7 +30,7 @@ public function run(): void
         // 2. 依存順を保証
         $this->call([
             PlanSeeder::class,
-            RoleSeeder::class,
+            AdminRoleSeeder::class,
             TenantSeeder::class,
             AdminUserSeeder::class,
             NotifyMailTemplateSeeder::class,

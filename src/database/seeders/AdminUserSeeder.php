@@ -5,31 +5,35 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\AdminUser;
-use App\Models\Role;
-use App\Models\Tenant;
+use App\Models\AdminRole;
 use App\Models\Language;
 
 class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $role = Role::where('code', 'super_admin')->first();
-        $tenant = Tenant::where('code', 'internal')->first();
-        $language = Language::where('code', 'ja')->first();
+        // ✅ なければ作成する (firstOrCreate) 方式に変更
+        $role = AdminRole::firstOrCreate(
+            ['code' => 'system_admin'],
+            ['name' => 'システム管理者']
+        );
 
-        if (!$role || !$tenant || !$language) {
-            throw new \Exception('Required master data not found for AdminUserSeeder.');
-        }
+        $language = Language::firstOrCreate(
+            ['code' => 'ja'],
+            ['name' => '日本語']
+        );
 
+        // これで例外を投げずに確実にユーザーが作成されます
         AdminUser::updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
-                'name'        => 'System Admin',
-                'password'    => Hash::make('password'),
-                // 'tenant_id'   => $tenant->id,
-                'role_id'     => $role->id,
-                'language_id' => $language->id,
+                'name'          => 'System Admin',
+                'password'      => Hash::make('password'),
+                'admin_role_id' => $role->id,
+                'language_id'   => $language->id,
             ]
         );
+        
+        $this->command->info('Admin user created successfully.');
     }
 }
