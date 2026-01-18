@@ -30,6 +30,16 @@ return new class extends Migration
             $table->boolean('is_active')->default(true)->comment('有効フラグ（falseで全停止）');
             $table->timestamp('trial_start_at')->nullable()->comment('トライアル開始日時');
             $table->timestamp('trial_ends_at')->nullable()->comment('トライアル終了日時');
+
+            $table->string('mail_from_address')->nullable()->comment('送信元メールアドレス（暗号化保存）');
+            $table->string('mail_from_name')->nullable()->comment('送信元名（暗号化保存）');
+
+           // SMTP（必要な場合のみ）
+            $table->string('smtp_host')->nullable()->comment('SMTPホスト（暗号化保存）');
+            $table->integer('smtp_port')->nullable()->comment('SMTPポート（暗号化保存）');
+            $table->string('smtp_username')->nullable()->comment('SMTPユーザー名（暗号化保存）');
+            $table->string('smtp_password')->nullable()->comment('SMTPパスワード（暗号化保存）');
+            $table->boolean('smtp_encryption')->default(false)->comment('SMTP暗号化（SSL/TLS）使用フラグ');            
             
             // 監査ログ設定
             $table->integer('audit_log_retention_days')->default(90)->comment('監査ログ保持期間（日）');
