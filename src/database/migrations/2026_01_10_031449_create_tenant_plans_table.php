@@ -24,7 +24,16 @@ return new class extends Migration {
             $table->date('contract_start_at')->comment('契約開始日');
             $table->date('contract_end_at')->nullable()->comment('契約終了日');
             
+            // // 課金状態
+            // $table->enum('status', ['active', 'trial', 'canceled', 'expired'])->index()->comment('課金状態');
+
+            // // 課金・支払い管理
+            // $table->string('payment_provider_customer_id')->nullable()->comment('決済プロバイダの顧客ID（暗号化保存）');
+            // $table->string('payment_provider_contract_id')->nullable()->comment('決済プロバイダのサブスクリプションID（暗号化保存）');       
+            
             $table->timestamps();
+            $table->softDeletes()->comment('論理削除日時');
+            
         });
     }
 
